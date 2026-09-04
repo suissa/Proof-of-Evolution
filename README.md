@@ -1,6 +1,34 @@
 # Proof-of-Evolution
 A Blockchain for Agent Identity, Evolution, and Authorization in the Business-to-Agent Internet
 
+## Implementation
+
+`src/` contains a Zig (0.16) implementation of the core mechanism described
+below: an Ed25519-signed `GenesisNode`, `VersionNode`s that must chain back
+to it, and a `Chain` rule engine (`src/chain.zig`) that accepts a new
+version only if it is signed by the currently active controller key, its
+security level does not regress, and its capability diff is consistent
+with the agent's active capability set — while still allowing key rotation
+and capability changes, since identity is the verifiable lineage, not any
+single key (section 2/6). `src/merkle.zig` implements the Merkle-root
+`AgentActivityCommitmentNode` used to anchor off-chain EventStore batches
+(section 7/8).
+
+Build and run the demo (creates a genesis node, evolves it through a
+capability grant and a key rotation, shows a forged version being
+rejected, and independently re-validates the resulting chain from its raw
+nodes):
+
+```sh
+zig build test   # unit tests for every module
+zig build run    # end-to-end demo
+```
+
+Networking, DID resolution, mTLS/DPoP, and post-quantum key exchange
+(sections 3, 9–11) are existing standards the whitepaper composes with
+Proof-of-Evolution rather than novel contributions of this project, and are
+not implemented here.
+
 ## Abstract
 
 The next phase of the internet will probably not be composed only of humans interacting with websites, applications, and APIs. A growing share of digital interactions is likely to be performed by autonomous Agents: systems capable of discovering services, negotiating, authenticating themselves, executing tasks, making decisions constrained by policies, and interacting directly with businesses. There are already strong signs of this transition: interoperability protocols between Agents, standards for connecting models to tools, the growth of automated traffic, and forecasts about the adoption of Agentic AI in enterprise software. However, there is still no universal layer of identity, authorization, evolution, auditability, and revocation designed specifically for Agents.
